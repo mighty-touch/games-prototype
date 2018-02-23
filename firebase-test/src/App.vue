@@ -1,8 +1,12 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <div class="container">
+      <div class="row">
+        <img :src="currentImage">
+      </div>
+    </div>
     <div class="columns">
-      <table class="table column is-offset-5"> 
+      <table class="table column is-offset-5">
       <thead>
         <th>Tarik Tambang!!!!!</th>
       </thead>
@@ -13,8 +17,8 @@
     </div>
     <div>
     <form>
-      <input type="radio" name="team" v-model="team" value="kiri"> kiri
-      <input type="radio" name="team" v-model="team" value="kanan"> kanan
+      <input type="radio" name="team" v-model="team" value="kiri"> TEAM BAPAK
+      <input type="radio" name="team" v-model="team" value="kanan"> TEAM IBUK
     </form>
     </div>
     <a @click="resetTug" class="button is-success">Reset</a>
@@ -30,8 +34,22 @@ export default {
      room: 0,
      team: '',
      count: 0,
-    }
-  },
+     gambar: '2.jpg'
+   }
+ },
+ computed: {
+   currentImage () {
+     let image = ''
+     switch (this.room) {
+       case -2: image = '0.jpg'; break;
+       case -1: image = '1.jpg'; break;
+       case 1: image = '3.jpg'; break;
+       case 2: image = '4.jpg'; break;
+       case 0: image = '2.jpg'; break;
+     }
+     return require('./assets/' + image)
+   }
+ },
   beforeCreate () {
     let ref = this.$db.ref('room1')
     ref.on('value', (snapshot)=> {
@@ -50,14 +68,26 @@ export default {
           this.count = 0
           if(this.team==='kiri') {
             this.$db.ref().update({"room1": this.room--})
+            this.winner()
           } else if (this.team==='kanan'){
             this.$db.ref().update({"room1": this.room++})
+            this.winner()
           }
         }
       }
     },
     resetTug() {
       this.$db.ref().update({"room1": 0})
+    },
+    winner() {
+      if (this.room < -2) {
+        swal("PLUS ULTRA!! TEAM BAPAK WIN!!", "", "success")
+        this.resetTug()
+      }
+      if (this.room > 2) {
+        swal("SMASH!! TEAM IBUK WIN!!!", "", "success")
+        this.resetTug()
+      }
     }
   }
 }
